@@ -27,4 +27,8 @@ jobs:
 
       - name: Build and smoke test
         shell: bash
-        run: bash scripts/build_and_smoke_test.sh
+        run: |
+          pwd
+          ls -la
+          find . -maxdepth 3 -type f | sort
+          bash -x scripts/build_and_smoke_test.sh

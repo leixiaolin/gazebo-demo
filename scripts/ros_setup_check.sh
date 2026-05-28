@@ -10,7 +10,7 @@ elif [[ -n "${ROS_DISTRO:-}" && -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]]; then
 fi
 
 missing=()
-for command_name in ros2 colcon gz; do
+for command_name in ros2 colcon; do
   if ! command -v "${command_name}" >/dev/null 2>&1; then
     missing+=("${command_name}")
   fi
@@ -30,4 +30,9 @@ fi
 
 printf 'ROS_DISTRO=%s\n' "${ROS_DISTRO:-unknown}"
 ros2 pkg prefix ros_gz_sim
-gz sim --versions
+
+if command -v gz >/dev/null 2>&1; then
+  gz sim --versions
+else
+  printf 'gz CLI was not found; ros_gz_sim is installed and launch smoke test will verify Gazebo startup.\n'
+fi

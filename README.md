@@ -11,10 +11,44 @@ This repository contains a ROS 2 + Gazebo Sim MVP for a tennis ball picking robo
 Install a ROS 2 distribution that supports Gazebo Sim integration, plus `ros_gz_sim`.
 The launch file targets the modern Gazebo Sim stack rather than Gazebo Classic.
 
-Typical Ubuntu setup:
+Recommended stack:
+
+- Ubuntu 24.04
+- ROS 2 Jazzy
+- Gazebo Harmonic through `ros-jazzy-ros-gz`
+
+Typical Ubuntu setup after ROS 2 is installed:
 
 ```bash
-sudo apt install ros-${ROS_DISTRO}-ros-gz-sim
+sudo apt install ros-${ROS_DISTRO}-ros-gz ros-${ROS_DISTRO}-ros-gz-bridge
+```
+
+Check the environment:
+
+```bash
+bash scripts/ros_setup_check.sh
+```
+
+## Docker
+
+If you do not want to install ROS 2 and Gazebo directly on the host, build the included container:
+
+```bash
+docker compose -f docker/compose.yaml build
+docker compose -f docker/compose.yaml run --rm sim
+```
+
+For Docker Compose v1, use:
+
+```bash
+docker-compose -f docker/compose.yaml build
+docker-compose -f docker/compose.yaml run --rm sim
+```
+
+Inside the container:
+
+```bash
+bash scripts/build_and_smoke_test.sh
 ```
 
 ## Build
@@ -44,6 +78,26 @@ For quick visual checks:
 
 ```bash
 ros2 launch tennis_ball_picker_sim tennis_court.launch.py ball_count:=12 seed:=7
+```
+
+For a server-only smoke test:
+
+```bash
+ros2 launch tennis_ball_picker_sim tennis_court.launch.py ball_count:=5 seed:=7 headless:=true
+```
+
+## Test
+
+Run the Python tests for deterministic ball placement:
+
+```bash
+python3 -m pytest test
+```
+
+Build and run a short headless Gazebo smoke test:
+
+```bash
+bash scripts/build_and_smoke_test.sh
 ```
 
 ## Teleoperation Hook

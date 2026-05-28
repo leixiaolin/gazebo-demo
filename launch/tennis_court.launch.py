@@ -12,7 +12,7 @@ from launch.actions import (
     TimerAction,
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.substitutions import FindPackageShare
 
 from tennis_ball_picker_sim.scatter import BALL_RADIUS, sample_ball_positions
@@ -94,10 +94,22 @@ def generate_launch_description():
         [
             DeclareLaunchArgument("ball_count", default_value="50"),
             DeclareLaunchArgument("seed", default_value="42"),
+            DeclareLaunchArgument("headless", default_value="false"),
             DeclareLaunchArgument("world_name", default_value="tennis_court"),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(gz_launch),
-                launch_arguments={"gz_args": ["-r ", world_file]}.items(),
+                launch_arguments={
+                    "gz_args": [
+                        PythonExpression(
+                            [
+                                "'-r -s ' if '",
+                                LaunchConfiguration("headless"),
+                                "' == 'true' else '-r '",
+                            ]
+                        ),
+                        world_file,
+                    ]
+                }.items(),
             ),
             TimerAction(period=3.0, actions=[OpaqueFunction(function=_spawn_entities)]),
         ]

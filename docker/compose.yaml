@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  sim:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: gazebo-demo:jazzy
+    working_dir: /workspaces/gazebo-demo
+    volumes:
+      - ..:/workspaces/gazebo-demo
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      DISPLAY: ${DISPLAY}
+      QT_X11_NO_MITSHM: "1"
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: graphics,utility,compute
+    stdin_open: true
+    tty: true
+    command: bash

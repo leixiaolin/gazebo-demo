@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<sdf version="1.10">
+  <model name="tennis_ball">
+    <pose>0 0 0.0335 0 0 0</pose>
+    <link name="ball">
+      <inertial>
+        <mass>0.058</mass>
+        <inertia>
+          <ixx>0.000026</ixx>
+          <iyy>0.000026</iyy>
+          <izz>0.000026</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <sphere>
+            <radius>0.0335</radius>
+          </sphere>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.65</mu>
+              <mu2>0.65</mu2>
+            </ode>
+          </friction>
+          <bounce>
+            <restitution_coefficient>0.55</restitution_coefficient>
+            <threshold>0.05</threshold>
+          </bounce>
+        </surface>
+      </collision>
+      <visual name="felt_visual">
+        <geometry>
+          <sphere>
+            <radius>0.0335</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.72 0.86 0.03 1</ambient>
+          <diffuse>0.82 0.96 0.06 1</diffuse>
+          <specular>0.18 0.20 0.05 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

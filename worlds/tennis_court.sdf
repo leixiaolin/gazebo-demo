@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<sdf version="1.10">
+  <world name="tennis_court">
+    <physics name="default_physics" type="ignored">
+      <max_step_size>0.002</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>500</real_time_update_rate>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+
+    <scene>
+      <ambient>0.55 0.55 0.55 1</ambient>
+      <background>0.72 0.82 0.92 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>23.125</latitude_deg>
+      <longitude_deg>113.35</longitude_deg>
+      <elevation>20</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>-6 -4 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.85 1</diffuse>
+      <specular>0.25 0.25 0.2 1</specular>
+      <direction>0.45 0.35 -0.82</direction>
+    </light>
+
+    <model name="hard_tennis_court">
+      <static>true</static>
+      <link name="court_link">
+        <collision name="surface_collision">
+          <geometry>
+            <box>
+              <size>25.0 12.2 0.05</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.85</mu>
+                <mu2>0.85</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="surface_visual">
+          <geometry>
+            <box>
+              <size>25.0 12.2 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.10 0.42 0.32 1</ambient>
+            <diffuse>0.12 0.50 0.38 1</diffuse>
+            <specular>0.04 0.06 0.05 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="court_lines">
+      <static>true</static>
+      <link name="lines_link">
+        <visual name="baseline_north">
+          <pose>11.885 0 0.031 0 0 0</pose>
+          <geometry><box><size>0.06 10.97 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="baseline_south">
+          <pose>-11.885 0 0.031 0 0 0</pose>
+          <geometry><box><size>0.06 10.97 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="sideline_east">
+          <pose>0 5.485 0.031 0 0 0</pose>
+          <geometry><box><size>23.77 0.06 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="sideline_west">
+          <pose>0 -5.485 0.031 0 0 0</pose>
+          <geometry><box><size>23.77 0.06 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="singles_east">
+          <pose>0 4.115 0.032 0 0 0</pose>
+          <geometry><box><size>23.77 0.045 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="singles_west">
+          <pose>0 -4.115 0.032 0 0 0</pose>
+          <geometry><box><size>23.77 0.045 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="service_line_north">
+          <pose>6.4 0 0.033 0 0 0</pose>
+          <geometry><box><size>0.045 8.23 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="service_line_south">
+          <pose>-6.4 0 0.033 0 0 0</pose>
+          <geometry><box><size>0.045 8.23 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="center_service_line">
+          <pose>0 0 0.034 0 0 0</pose>
+          <geometry><box><size>12.8 0.045 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="center_mark_north">
+          <pose>11.72 0 0.035 0 0 0</pose>
+          <geometry><box><size>0.33 0.045 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+        <visual name="center_mark_south">
+          <pose>-11.72 0 0.035 0 0 0</pose>
+          <geometry><box><size>0.33 0.045 0.012</size></box></geometry>
+          <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="net">
+      <static>true</static>
+      <link name="net_link">
+        <visual name="net_mesh">
+          <pose>0 0 0.57 0 0 0</pose>
+          <geometry><box><size>0.06 11.1 0.92</size></box></geometry>
+          <material>
+            <ambient>0.02 0.02 0.025 0.45</ambient>
+            <diffuse>0.02 0.02 0.025 0.45</diffuse>
+          </material>
+          <transparency>0.55</transparency>
+        </visual>
+        <collision name="net_collision">
+          <pose>0 0 0.57 0 0 0</pose>
+          <geometry><box><size>0.06 11.1 0.92</size></box></geometry>
+        </collision>
+        <visual name="net_top_band">
+          <pose>0 0 1.03 0 0 0</pose>
+          <geometry><box><size>0.08 11.1 0.06</size></box></geometry>
+          <material><ambient>0.92 0.92 0.88 1</ambient><diffuse>0.92 0.92 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="perimeter_fence">
+      <static>true</static>
+      <link name="fence_link">
+        <visual name="fence_north">
+          <pose>13.2 0 1.05 0 0 0</pose>
+          <geometry><box><size>0.06 14.0 2.1</size></box></geometry>
+          <material><ambient>0.05 0.08 0.07 0.35</ambient><diffuse>0.05 0.08 0.07 0.35</diffuse></material>
+          <transparency>0.62</transparency>
+        </visual>
+        <visual name="fence_south">
+          <pose>-13.2 0 1.05 0 0 0</pose>
+          <geometry><box><size>0.06 14.0 2.1</size></box></geometry>
+          <material><ambient>0.05 0.08 0.07 0.35</ambient><diffuse>0.05 0.08 0.07 0.35</diffuse></material>
+          <transparency>0.62</transparency>
+        </visual>
+        <visual name="fence_east">
+          <pose>0 6.75 1.05 0 0 0</pose>
+          <geometry><box><size>26.4 0.06 2.1</size></box></geometry>
+          <material><ambient>0.05 0.08 0.07 0.35</ambient><diffuse>0.05 0.08 0.07 0.35</diffuse></material>
+          <transparency>0.62</transparency>
+        </visual>
+        <visual name="fence_west">
+          <pose>0 -6.75 1.05 0 0 0</pose>
+          <geometry><box><size>26.4 0.06 2.1</size></box></geometry>
+          <material><ambient>0.05 0.08 0.07 0.35</ambient><diffuse>0.05 0.08 0.07 0.35</diffuse></material>
+          <transparency>0.62</transparency>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

@@ -22,5 +22,14 @@ colcon build --symlink-install
 # shellcheck disable=SC1091
 source install/setup.bash
 
+set +e
 timeout --signal=INT 25s ros2 launch tennis_ball_picker_sim tennis_court.launch.py \
   ball_count:=5 seed:=7 headless:=true
+launch_status=$?
+set -e
+
+if [[ "${launch_status}" -ne 0 && "${launch_status}" -ne 124 && "${launch_status}" -ne 130 ]]; then
+  exit "${launch_status}"
+fi
+
+printf 'Headless Gazebo smoke test completed with status %s\n' "${launch_status}"

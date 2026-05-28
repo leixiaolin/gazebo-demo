@@ -1,0 +1,30 @@
+name: ROS Gazebo Smoke Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    container:
+      image: ros:jazzy-ros-base-noble
+
+    steps:
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git \
+            python3-colcon-common-extensions \
+            python3-pytest \
+            ros-jazzy-ros-gz \
+            ros-jazzy-ros-gz-bridge
+          rm -rf /var/lib/apt/lists/*
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build and smoke test
+        shell: bash
+        run: bash scripts/build_and_smoke_test.sh

@@ -25,10 +25,31 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Build and smoke test
+      - name: Inspect checkout
         shell: bash
         run: |
           pwd
           ls -la
           find . -maxdepth 3 -type f | sort
-          bash -x scripts/build_and_smoke_test.sh
+
+      - name: Check ROS and Gazebo setup
+        shell: bash
+        run: bash -x scripts/ros_setup_check.sh
+
+      - name: Run Python tests
+        shell: bash
+        run: |
+          python3 -m pytest test
+          python3 -m tennis_ball_picker_sim.p0_validator --root .
+
+      - name: Build ROS workspace
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --symlink-install
+          source install/setup.bash
+          ros2 run tennis_ball_picker_sim validate_p0_demo --root .
+
+      - name: Headless Gazebo launch smoke test
+        shell: bash
+        run: RUNTIME_SECONDS=25 bash scripts/runtime_p0_smoke_test.sh

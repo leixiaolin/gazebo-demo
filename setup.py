@@ -12,15 +12,16 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", [join("resource", package_name)]),
         (join("share", package_name), ["package.xml"]),
+        (join("share", package_name, "config"), glob("config/*.yaml")),
         (join("share", package_name, "launch"), glob("launch/*.launch.py")),
         (join("share", package_name, "worlds"), glob("worlds/*.sdf")),
         (
             join("share", package_name, "models", "ball_picker"),
-            glob("models/ball_picker/*.sdf"),
+            glob("models/ball_picker/*.sdf") + glob("models/ball_picker/*.config"),
         ),
         (
             join("share", package_name, "models", "tennis_ball"),
-            glob("models/tennis_ball/*.sdf"),
+            glob("models/tennis_ball/*.sdf") + glob("models/tennis_ball/*.config"),
         ),
     ],
     install_requires=["setuptools"],
@@ -33,5 +34,11 @@ setup(
     ),
     license="Apache-2.0",
     tests_require=["pytest"],
-    entry_points={"console_scripts": []},
+    entry_points={
+        "console_scripts": [
+            "print_ball_scenario = tennis_ball_picker_sim.scenario:main",
+            "validate_p0_demo = tennis_ball_picker_sim.p0_validator:main",
+            "nearest_ball_driver = tennis_ball_picker_sim.nearest_ball_driver:main",
+        ]
+    },
 )

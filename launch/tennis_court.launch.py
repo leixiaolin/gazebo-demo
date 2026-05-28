@@ -15,7 +15,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.substitutions import FindPackageShare
 
-from tennis_ball_picker_sim.scatter import BALL_RADIUS, sample_ball_positions
+from tennis_ball_picker_sim.scenario import build_scenario, write_scenario
 
 
 def _spawn_entities(context):
@@ -23,10 +23,15 @@ def _spawn_entities(context):
     world_name = LaunchConfiguration("world_name").perform(context)
     ball_count = int(LaunchConfiguration("ball_count").perform(context))
     seed = int(LaunchConfiguration("seed").perform(context))
+    manifest_output = LaunchConfiguration("manifest_output").perform(context)
 
     robot_file = package_share / "models" / "ball_picker" / "ball_picker.sdf"
     ball_file = package_share / "models" / "tennis_ball" / "tennis_ball.sdf"
-    positions = sample_ball_positions(ball_count, seed)
+    manifest = build_scenario(ball_count, seed)
+    if manifest_output:
+        write_scenario(manifest_output, ball_count, seed)
+
+    robot_spawn = manifest["robot_spawn"]
 
     actions = [
         ExecuteProcess(
@@ -42,19 +47,19 @@ def _spawn_entities(context):
                 "-file",
                 str(robot_file),
                 "-x",
-                "0.0",
+                f"{robot_spawn['x']:.3f}",
                 "-y",
-                "-4.75",
+                f"{robot_spawn['y']:.3f}",
                 "-z",
-                "0.08",
+                f"{robot_spawn['z']:.3f}",
                 "-Y",
-                "1.5708",
+                f"{robot_spawn['yaw_rad']:.4f}",
             ],
             output="screen",
         )
     ]
 
-    for index, position in enumerate(positions):
+    for ball in manifest["balls"]:
         actions.append(
             ExecuteProcess(
                 cmd=[
@@ -65,15 +70,17 @@ def _spawn_entities(context):
                     "-world",
                     world_name,
                     "-name",
-                    f"tennis_ball_{index:02d}",
+                    ball["name"],
                     "-file",
                     str(ball_file),
                     "-x",
-                    f"{position.x:.3f}",
+                    f"{ball['x']:.3f}",
                     "-y",
-                    f"{position.y:.3f}",
+                    f"{ball['y']:.3f}",
                     "-z",
-                    f"{BALL_RADIUS + 0.015:.3f}",
+                    f"{ball['z']:.3f}",
+                    "-Y",
+                    f"{ball['yaw_rad']:.4f}",
                 ],
                 output="screen",
             )
@@ -95,6 +102,7 @@ def generate_launch_description():
             DeclareLaunchArgument("ball_count", default_value="50"),
             DeclareLaunchArgument("seed", default_value="42"),
             DeclareLaunchArgument("headless", default_value="false"),
+            DeclareLaunchArgument("manifest_output", default_value=""),
             DeclareLaunchArgument("world_name", default_value="tennis_court"),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(gz_launch),

@@ -1,0 +1,20 @@
+scenario:
+  name: hard_court_50
+  description: Standard hard-court MVP scenario with 50 reproducible tennis balls.
+  court:
+    length_m: 23.77
+    width_m: 10.97
+    surface: hard
+  robot:
+    model: ball_picker
+    spawn:
+      x: 0.0
+      y: -4.75
+      z: 0.08
+      yaw_rad: 1.5708
+  balls:
+    model: tennis_ball
+    count: 50
+    seed: 42
+    min_separation_m: 0.34
+    radius_m: 0.0335

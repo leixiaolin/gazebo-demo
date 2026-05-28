@@ -3,7 +3,8 @@
 This repository contains a ROS 2 + Gazebo Sim MVP for a tennis ball picking robot:
 
 - a hard tennis court world with lines, net, perimeter fence, lighting, and friction settings
-- a simplified differential-drive ball picker robot with pickup mouth, hopper, camera, and lidar placeholders
+- physical net, net posts, and perimeter fence collisions to keep the robot and balls inside the court area
+- a simplified differential-drive ball picker robot with a physical pickup mouth, guide plates, hopper, camera, and lidar
 - reproducible random tennis ball scattering through ROS 2 launch arguments
 
 ## Requirements
@@ -65,25 +66,46 @@ source install/setup.bash
 Launch the court, robot, and 50 randomly scattered tennis balls:
 
 ```bash
-ros2 launch tennis_ball_picker_sim tennis_court.launch.py
+ros2 launch tennis_ball_picker_sim p0_demo.launch.py
 ```
 
 Use a deterministic seed when comparing algorithms or recording experiments:
 
 ```bash
-ros2 launch tennis_ball_picker_sim tennis_court.launch.py ball_count:=50 seed:=20260528
+ros2 launch tennis_ball_picker_sim p0_demo.launch.py ball_count:=50 seed:=20260528
+```
+
+Save the same manifest while launching Gazebo:
+
+```bash
+ros2 launch tennis_ball_picker_sim p0_demo.launch.py \
+  ball_count:=50 \
+  seed:=20260528 \
+  manifest_output:=runs/hard_court_seed_20260528.json
 ```
 
 For quick visual checks:
 
 ```bash
-ros2 launch tennis_ball_picker_sim tennis_court.launch.py ball_count:=12 seed:=7
+ros2 launch tennis_ball_picker_sim p0_demo.launch.py ball_count:=12 seed:=7
+```
+
+Launch the complete manual-driving demo with ROS-Gazebo bridges:
+
+```bash
+ros2 launch tennis_ball_picker_sim teleop_demo.launch.py
+```
+
+Launch the nearest-ball autonomy demo:
+
+```bash
+ros2 launch tennis_ball_picker_sim autonomy_demo.launch.py ball_count:=50 seed:=42
 ```
 
 For a server-only smoke test:
 
 ```bash
-ros2 launch tennis_ball_picker_sim tennis_court.launch.py ball_count:=5 seed:=7 headless:=true
+ros2 launch tennis_ball_picker_sim p0_demo.launch.py ball_count:=5 seed:=7 headless:=true
 ```
 
 ## Test
@@ -94,7 +116,55 @@ Run the Python tests for deterministic ball placement:
 python3 -m pytest test
 ```
 
-Build and run a short headless Gazebo smoke test:
+Run the static P0 validator without launching Gazebo:
+
+```bash
+ros2 run tennis_ball_picker_sim validate_p0_demo --root .
+```
+
+The validator checks the default P0 launch arguments, required assets, XML validity, court boundary collisions, robot topics, and default 50-ball scenario bounds/separation.
+
+Print the deterministic ball placement manifest without launching Gazebo:
+
+```bash
+ros2 run tennis_ball_picker_sim print_ball_scenario --ball-count 50 --seed 42
+```
+
+Save the manifest without launching Gazebo:
+
+```bash
+ros2 run tennis_ball_picker_sim print_ball_scenario \
+  --ball-count 50 \
+  --seed 20260528 \
+  --output runs/hard_court_seed_20260528.json
+```
+
+## P0 Acceptance
+
+Run the static P0 validator without starting Gazebo:
+
+```bash
+ros2 run tennis_ball_picker_sim validate_p0_demo --root .
+```
+
+Run the headless runtime P0 smoke test:
+
+```bash
+bash scripts/runtime_p0_smoke_test.sh
+```
+
+The runtime smoke test launches `p0_demo.launch.py` with 50 balls, `seed:=42`, `headless:=true`, and writes `runs/p0_seed_42.json`. If `ros_gz_bridge` is available, it also checks that `/clock` and `/ball_picker/odom` appear on the ROS graph.
+
+Run the GUI P0 demo manually:
+
+```bash
+ros2 launch tennis_ball_picker_sim p0_demo.launch.py \
+  ball_count:=50 \
+  seed:=42 \
+  manifest_output:=runs/p0_seed_42.json
+```
+
+Build and run the full test chain:
 
 ```bash
 bash scripts/build_and_smoke_test.sh
@@ -115,6 +185,29 @@ It publishes odometry on:
 ```
 
 Bridge these topics with `ros_gz_bridge` when adding ROS-side teleoperation, Nav2, or an autonomous pickup controller.
+
+The included bridge launch maps:
+
+```text
+/clock
+/ball_picker/cmd_vel
+/ball_picker/odom
+/ball_picker/front_camera/image
+/ball_picker/front_camera/camera_info
+/ball_picker/scan
+/ball_picker/imu
+```
+
+After running `teleop_demo.launch.py`, send velocity commands to `/ball_picker/cmd_vel` from ROS 2 teleop or a controller node.
+
+The robot SDF includes a front RGB camera, a front 2D LiDAR, and an IMU so the next stages can add color/depth-inspired ball detection, obstacle avoidance, and state estimation without changing the base simulation entry point.
+The world loads Gazebo Sensors and IMU systems, so these sensor topics are produced by the same `tennis_court.launch.py` and `teleop_demo.launch.py` entry points.
+
+## Autonomy Demo
+
+`autonomy_demo.launch.py` runs the same deterministic ball scenario and starts `nearest_ball_driver`. The driver subscribes to `/ball_picker/odom`, selects the nearest unreached ball from the seed-based scenario manifest, and publishes conservative velocity commands to `/ball_picker/cmd_vel`.
+
+This is intentionally a simple interface smoke test rather than a final pickup planner: it proves the robot, bridge, odometry, command topic, and random-ball manifest are wired together.
 
 ## MVP Scope
 

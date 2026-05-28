@@ -17,19 +17,9 @@ fi
 "${SCRIPT_DIR}/ros_setup_check.sh"
 
 python3 -m pytest test
+python3 -m tennis_ball_picker_sim.p0_validator --root .
 colcon build --symlink-install
 
 # shellcheck disable=SC1091
 source install/setup.bash
-
-set +e
-timeout --signal=INT 25s ros2 launch tennis_ball_picker_sim tennis_court.launch.py \
-  ball_count:=5 seed:=7 headless:=true
-launch_status=$?
-set -e
-
-if [[ "${launch_status}" -ne 0 && "${launch_status}" -ne 124 && "${launch_status}" -ne 130 ]]; then
-  exit "${launch_status}"
-fi
-
-printf 'Headless Gazebo smoke test completed with status %s\n' "${launch_status}"
+RUNTIME_SECONDS="${RUNTIME_SECONDS:-25}" bash "${SCRIPT_DIR}/runtime_p0_smoke_test.sh"

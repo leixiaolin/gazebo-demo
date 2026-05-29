@@ -1,30 +1,30 @@
 # Tennis Ball Picker Gazebo Demo
 
-This repository contains a ROS 2 + Gazebo Sim MVP for a tennis ball picking robot:
+本仓库是一个用于网球拾取机器人的 ROS 2 + Gazebo Sim MVP：
 
-- a hard tennis court world with lines, net, perimeter fence, lighting, and friction settings
-- physical net, net posts, and perimeter fence collisions to keep the robot and balls inside the court area
-- a simplified differential-drive ball picker robot with a physical pickup mouth, guide plates, hopper, camera, and lidar
-- reproducible random tennis ball scattering through ROS 2 launch arguments
+- 带场线、球网、围栏、光照和摩擦设置的硬地网球场世界
+- 带碰撞体的实体球网、网柱和场地围栏，用于把机器人和网球限制在球场区域内
+- 简化的差速驱动拾球机器人，包含实体拾球口、导向板、储球仓、相机和激光雷达
+- 可通过 ROS 2 launch 参数复现的随机网球散布场景
 
-## Requirements
+## 环境要求
 
-Install a ROS 2 distribution that supports Gazebo Sim integration, plus `ros_gz_sim`.
-The launch file targets the modern Gazebo Sim stack rather than Gazebo Classic.
+请安装支持 Gazebo Sim 集成的 ROS 2 发行版，以及 `ros_gz_sim`。
+本项目的 launch 文件面向现代 Gazebo Sim 栈，而不是 Gazebo Classic。
 
-Recommended stack:
+推荐环境：
 
 - Ubuntu 24.04
 - ROS 2 Jazzy
-- Gazebo Harmonic through `ros-jazzy-ros-gz`
+- 通过 `ros-jazzy-ros-gz` 安装 Gazebo Harmonic
 
-Typical Ubuntu setup after ROS 2 is installed:
+安装 ROS 2 后，典型的 Ubuntu 依赖安装命令如下：
 
 ```bash
 sudo apt install ros-${ROS_DISTRO}-ros-gz ros-${ROS_DISTRO}-ros-gz-bridge
 ```
 
-Check the environment:
+检查环境：
 
 ```bash
 bash scripts/ros_setup_check.sh
@@ -32,50 +32,50 @@ bash scripts/ros_setup_check.sh
 
 ## Docker
 
-If you do not want to install ROS 2 and Gazebo directly on the host, build the included container:
+如果不想在宿主机上直接安装 ROS 2 和 Gazebo，可以构建随仓库提供的容器：
 
 ```bash
 docker compose -f docker/compose.yaml build
 docker compose -f docker/compose.yaml run --rm sim
 ```
 
-For Docker Compose v1, use:
+如果使用 Docker Compose v1，请改用：
 
 ```bash
 docker-compose -f docker/compose.yaml build
 docker-compose -f docker/compose.yaml run --rm sim
 ```
 
-Inside the container:
+进入容器后运行：
 
 ```bash
 bash scripts/build_and_smoke_test.sh
 ```
 
-## Build
+## 构建
 
-From the workspace root that contains this package:
+在包含本 package 的 workspace 根目录中运行：
 
 ```bash
 colcon build --symlink-install
 source install/setup.bash
 ```
 
-## Run
+## 运行
 
-Launch the court, robot, and 50 randomly scattered tennis balls:
+启动球场、机器人和 50 个随机散布的网球：
 
 ```bash
 ros2 launch tennis_ball_picker_sim p0_demo.launch.py
 ```
 
-Use a deterministic seed when comparing algorithms or recording experiments:
+在比较算法或记录实验时，可以使用确定性 seed：
 
 ```bash
 ros2 launch tennis_ball_picker_sim p0_demo.launch.py ball_count:=50 seed:=20260528
 ```
 
-Save the same manifest while launching Gazebo:
+启动 Gazebo 的同时保存同一份场景 manifest：
 
 ```bash
 ros2 launch tennis_ball_picker_sim p0_demo.launch.py \
@@ -84,53 +84,53 @@ ros2 launch tennis_ball_picker_sim p0_demo.launch.py \
   manifest_output:=runs/hard_court_seed_20260528.json
 ```
 
-For quick visual checks:
+快速进行可视化检查：
 
 ```bash
 ros2 launch tennis_ball_picker_sim p0_demo.launch.py ball_count:=12 seed:=7
 ```
 
-Launch the complete manual-driving demo with ROS-Gazebo bridges:
+启动包含 ROS-Gazebo bridge 的完整手动驾驶 demo：
 
 ```bash
 ros2 launch tennis_ball_picker_sim teleop_demo.launch.py
 ```
 
-Launch the nearest-ball autonomy demo:
+启动最近网球自主驾驶 demo：
 
 ```bash
 ros2 launch tennis_ball_picker_sim autonomy_demo.launch.py ball_count:=50 seed:=42
 ```
 
-For a server-only smoke test:
+运行仅服务端的 smoke test：
 
 ```bash
 ros2 launch tennis_ball_picker_sim p0_demo.launch.py ball_count:=5 seed:=7 headless:=true
 ```
 
-## Test
+## 测试
 
-Run the Python tests for deterministic ball placement:
+运行用于验证确定性网球放置的 Python 测试：
 
 ```bash
 python3 -m pytest test
 ```
 
-Run the static P0 validator without launching Gazebo:
+在不启动 Gazebo 的情况下运行静态 P0 校验器：
 
 ```bash
 ros2 run tennis_ball_picker_sim validate_p0_demo --root .
 ```
 
-The validator checks the default P0 launch arguments, required assets, XML validity, court boundary collisions, robot topics, and default 50-ball scenario bounds/separation.
+校验器会检查默认 P0 launch 参数、必需资源、XML 有效性、球场边界碰撞体、机器人 topic，以及默认 50 球场景的边界和间距。
 
-Print the deterministic ball placement manifest without launching Gazebo:
+在不启动 Gazebo 的情况下打印确定性网球放置 manifest：
 
 ```bash
 ros2 run tennis_ball_picker_sim print_ball_scenario --ball-count 50 --seed 42
 ```
 
-Save the manifest without launching Gazebo:
+在不启动 Gazebo 的情况下保存 manifest：
 
 ```bash
 ros2 run tennis_ball_picker_sim print_ball_scenario \
@@ -139,23 +139,23 @@ ros2 run tennis_ball_picker_sim print_ball_scenario \
   --output runs/hard_court_seed_20260528.json
 ```
 
-## P0 Acceptance
+## P0 验收
 
-Run the static P0 validator without starting Gazebo:
+在不启动 Gazebo 的情况下运行静态 P0 校验器：
 
 ```bash
 ros2 run tennis_ball_picker_sim validate_p0_demo --root .
 ```
 
-Run the headless runtime P0 smoke test:
+运行 headless 运行时 P0 smoke test：
 
 ```bash
 bash scripts/runtime_p0_smoke_test.sh
 ```
 
-The runtime smoke test launches `p0_demo.launch.py` with 50 balls, `seed:=42`, `headless:=true`, and writes `runs/p0_seed_42.json`. If `ros_gz_bridge` is available, it also checks that `/clock` and `/ball_picker/odom` appear on the ROS graph.
+运行时 smoke test 会以 50 个球、`seed:=42`、`headless:=true` 启动 `p0_demo.launch.py`，并写入 `runs/p0_seed_42.json`。如果 `ros_gz_bridge` 可用，它还会检查 ROS graph 上是否出现 `/clock` 和 `/ball_picker/odom`。
 
-Run the GUI P0 demo manually:
+手动运行 GUI P0 demo：
 
 ```bash
 ros2 launch tennis_ball_picker_sim p0_demo.launch.py \
@@ -164,29 +164,29 @@ ros2 launch tennis_ball_picker_sim p0_demo.launch.py \
   manifest_output:=runs/p0_seed_42.json
 ```
 
-Build and run the full test chain:
+构建并运行完整测试链：
 
 ```bash
 bash scripts/build_and_smoke_test.sh
 ```
 
-## Teleoperation Hook
+## 遥操作接口
 
-The robot SDF includes a Gazebo DiffDrive plugin listening on:
+机器人 SDF 包含一个 Gazebo DiffDrive plugin，监听：
 
 ```text
 /ball_picker/cmd_vel
 ```
 
-It publishes odometry on:
+它会在以下 topic 发布里程计：
 
 ```text
 /ball_picker/odom
 ```
 
-Bridge these topics with `ros_gz_bridge` when adding ROS-side teleoperation, Nav2, or an autonomous pickup controller.
+添加 ROS 侧遥操作、Nav2 或自主拾取控制器时，请使用 `ros_gz_bridge` 桥接这些 topic。
 
-The included bridge launch maps:
+随附的 bridge launch 会映射：
 
 ```text
 /clock
@@ -198,17 +198,17 @@ The included bridge launch maps:
 /ball_picker/imu
 ```
 
-After running `teleop_demo.launch.py`, send velocity commands to `/ball_picker/cmd_vel` from ROS 2 teleop or a controller node.
+运行 `teleop_demo.launch.py` 后，可以从 ROS 2 teleop 或控制器节点向 `/ball_picker/cmd_vel` 发送速度命令。
 
-The robot SDF includes a front RGB camera, a front 2D LiDAR, and an IMU so the next stages can add color/depth-inspired ball detection, obstacle avoidance, and state estimation without changing the base simulation entry point.
-The world loads Gazebo Sensors and IMU systems, so these sensor topics are produced by the same `tennis_court.launch.py` and `teleop_demo.launch.py` entry points.
+机器人 SDF 包含前置 RGB 相机、前置 2D LiDAR 和 IMU，因此后续阶段可以在不改变基础仿真入口的前提下，添加类似颜色/深度感知的网球检测、避障和状态估计。
+world 会加载 Gazebo Sensors 和 IMU systems，所以这些传感器 topic 会由相同的 `tennis_court.launch.py` 和 `teleop_demo.launch.py` 入口产生。
 
-## Autonomy Demo
+## 自主 Demo
 
-`autonomy_demo.launch.py` runs the same deterministic ball scenario and starts `nearest_ball_driver`. The driver subscribes to `/ball_picker/odom`, selects the nearest unreached ball from the seed-based scenario manifest, and publishes conservative velocity commands to `/ball_picker/cmd_vel`.
+`autonomy_demo.launch.py` 会运行同一套确定性网球场景，并启动 `nearest_ball_driver`。该 driver 订阅 `/ball_picker/odom`，从基于 seed 的场景 manifest 中选择最近且尚未到达的网球，并向 `/ball_picker/cmd_vel` 发布保守的速度命令。
 
-This is intentionally a simple interface smoke test rather than a final pickup planner: it proves the robot, bridge, odometry, command topic, and random-ball manifest are wired together.
+这有意保持为一个简单的接口 smoke test，而不是最终的拾球规划器：它用于证明机器人、bridge、里程计、命令 topic 和随机网球 manifest 已经连通。
 
-## MVP Scope
+## MVP 范围
 
-This is the P0 foundation from the simulation plan. It proves that the environment, robot asset, and randomized ball distribution can be launched reproducibly. Pickup success logic, detection, Nav2, evaluation reports, and sim-to-real calibration remain later stages.
+这是仿真计划中的 P0 基础。它证明环境、机器人资源和随机网球分布可以被可复现地启动。拾球成功逻辑、检测、Nav2、评估报告以及 sim-to-real 标定仍属于后续阶段。

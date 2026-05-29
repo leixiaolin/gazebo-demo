@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -f /opt/ros/jazzy/setup.bash ]]; then
-  # shellcheck disable=SC1091
-  source /opt/ros/jazzy/setup.bash
-elif [[ -n "${ROS_DISTRO:-}" && -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]]; then
-  # shellcheck disable=SC1090
-  source "/opt/ros/${ROS_DISTRO}/setup.bash"
-fi
+_source_ros() {
+  local setup
+  if [[ -f /opt/ros/humble/setup.bash ]]; then
+    setup=/opt/ros/humble/setup.bash
+  elif [[ -n "${ROS_DISTRO:-}" && -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]]; then
+    setup="/opt/ros/${ROS_DISTRO}/setup.bash"
+  fi
+  if [[ -n "${setup:-}" ]]; then
+    set +u
+    # shellcheck disable=SC1090
+    source "$setup"
+    set -u
+  fi
+}
+_source_ros
 
 missing=()
 for command_name in ros2 colcon; do

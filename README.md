@@ -14,9 +14,9 @@
 
 推荐环境：
 
-- Ubuntu 24.04
-- ROS 2 Jazzy
-- 通过 `ros-jazzy-ros-gz` 安装 Gazebo Harmonic
+- Ubuntu 22.04
+- ROS 2 Humble
+- 通过 `ros-humble-ros-gz` 安装 Gazebo Fortress
 
 安装 ROS 2 后，典型的 Ubuntu 依赖安装命令如下：
 
@@ -28,28 +28,6 @@ sudo apt install ros-${ROS_DISTRO}-ros-gz ros-${ROS_DISTRO}-ros-gz-bridge
 
 ```bash
 bash scripts/ros_setup_check.sh
-```
-
-## Docker
-
-如果不想在宿主机上直接安装 ROS 2 和 Gazebo，可以构建随仓库提供的容器：
-
-```bash
-docker compose -f docker/compose.yaml build
-docker compose -f docker/compose.yaml run --rm sim
-```
-
-如果使用 Docker Compose v1，请改用：
-
-```bash
-docker-compose -f docker/compose.yaml build
-docker-compose -f docker/compose.yaml run --rm sim
-```
-
-进入容器后运行：
-
-```bash
-bash scripts/build_and_smoke_test.sh
 ```
 
 ## 构建

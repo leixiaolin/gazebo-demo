@@ -13,17 +13,22 @@ MANIFEST_OUTPUT="${MANIFEST_OUTPUT:-${RUNS_DIR}/p0_seed_${SEED}.json}"
 
 cd "${REPO_ROOT}"
 
-if [[ -f /opt/ros/jazzy/setup.bash ]]; then
-  # shellcheck disable=SC1091
-  source /opt/ros/jazzy/setup.bash
-elif [[ -n "${ROS_DISTRO:-}" && -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]]; then
+source_setup() {
+  local setup_file="$1"
+  set +u
   # shellcheck disable=SC1090
-  source "/opt/ros/${ROS_DISTRO}/setup.bash"
+  source "${setup_file}"
+  set -u
+}
+
+if [[ -f /opt/ros/jazzy/setup.bash ]]; then
+  source_setup /opt/ros/jazzy/setup.bash
+elif [[ -n "${ROS_DISTRO:-}" && -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]]; then
+  source_setup "/opt/ros/${ROS_DISTRO}/setup.bash"
 fi
 
 if [[ -f install/setup.bash ]]; then
-  # shellcheck disable=SC1091
-  source install/setup.bash
+  source_setup install/setup.bash
 fi
 
 if ! command -v ros2 >/dev/null 2>&1; then

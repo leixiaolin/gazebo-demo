@@ -52,3 +52,19 @@ Use the ROS/Gazebo commands only in an environment where ROS 2 and Gazebo Sim ar
 This project does not yet prove real pickup performance. Gazebo is being used to validate system wiring, repeatable scenarios, interface contracts, and early autonomy flow. Do not represent the current nearest-ball driver as a production planner, and do not treat SDF contact behavior as a calibrated mechanical pickup model.
 
 Future work should make success criteria explicit before implementation: pickup plugin semantics, detection pipeline, Nav2 integration, metrics, rosbag recording, sim-to-real calibration, and physical rig validation are separate milestones.
+
+
+## 任务完成报告
+
+对非纯问答的开发任务，最终回复必须包含：
+
+- `本轮完成度:X%`
+- 本轮主目标是否完成
+- 已执行的验证
+- 剩余缺口
+- `下一刀`
+
+如果任务属于路线图、长期任务或多阶段目标，还要包含：
+
+- `整体目标完成度:Y%`
+- 百分比计算依据

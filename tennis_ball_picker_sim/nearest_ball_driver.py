@@ -33,7 +33,7 @@ class NearestBallDriver(Node):
         super().__init__("nearest_ball_driver")
         self.declare_parameter("ball_count", 50)
         self.declare_parameter("seed", 42)
-        self.declare_parameter("reached_radius", 0.22)
+        self.declare_parameter("reached_radius", 0.35)
 
         ball_count = self.get_parameter("ball_count").value
         seed = self.get_parameter("seed").value

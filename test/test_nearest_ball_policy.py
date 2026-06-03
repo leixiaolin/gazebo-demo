@@ -26,6 +26,16 @@ def test_nearest_ball_returns_none_when_all_targets_reached():
     assert nearest_ball(robot, balls, reached_radius=0.2) is None
 
 
+def test_nearest_ball_skips_targets_inside_default_pickup_radius():
+    robot = RobotPose(x=0.0, y=0.0, yaw=0.0)
+    balls = [
+        {"name": "inside_pickup_radius", "x": 0.24, "y": 0.0},
+        {"name": "next_target", "x": 0.8, "y": 0.0},
+    ]
+
+    assert nearest_ball(robot, balls)["name"] == "next_target"
+
+
 def test_command_rotates_before_driving_when_heading_error_is_large():
     robot = RobotPose(x=0.0, y=0.0, yaw=0.0)
     ball = {"x": 0.0, "y": 2.0}

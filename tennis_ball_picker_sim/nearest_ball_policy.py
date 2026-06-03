@@ -26,7 +26,7 @@ def wrap_angle(angle):
     return math.atan2(math.sin(angle), math.cos(angle))
 
 
-def nearest_ball(robot_pose, balls, reached_radius=0.22):
+def nearest_ball(robot_pose, balls, reached_radius=0.35):
     """Return the nearest unreached ball dictionary from a scenario manifest."""
     candidates = []
     for ball in balls:

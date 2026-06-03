@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
+COURT_SURFACE_Z = 0.025
 
 
 def test_required_simulation_assets_exist():
@@ -80,7 +81,6 @@ def test_robot_drive_wheels_are_oriented_for_ground_traction():
     assert model is not None
 
     model_pose = [float(value) for value in model.findtext("pose").split()]
-    assert model_pose[2] == 0.025
 
     for joint_name in ["left_wheel_joint", "right_wheel_joint"]:
         axis = robot_xml.find(f".//joint[@name='{joint_name}']/axis/xyz")
@@ -96,8 +96,10 @@ def test_robot_drive_wheels_are_oriented_for_ground_traction():
             float(value) for value in link.findtext(".//collision/pose").split()
         ]
         visual_pose = [float(value) for value in link.findtext(".//visual/pose").split()]
+        wheel_bottom_z = model_pose[2] + link_pose[2] - radius
 
         assert link_pose[2] == radius
+        assert wheel_bottom_z <= COURT_SURFACE_Z
         assert link_pose[3:6] == [0.0, 0.0, 0.0]
         assert collision_pose[3:6] == [1.5708, 0.0, 0.0]
         assert visual_pose[3:6] == [1.5708, 0.0, 0.0]

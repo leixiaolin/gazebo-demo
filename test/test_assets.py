@@ -74,6 +74,29 @@ def test_robot_has_drive_plugin_and_pickup_geometry():
     } <= collision_names
 
 
+def test_robot_drive_wheels_are_oriented_for_ground_traction():
+    robot_xml = ET.parse(ROOT / "models" / "ball_picker" / "ball_picker.sdf")
+    model = robot_xml.find(".//model")
+    assert model is not None
+
+    model_pose = [float(value) for value in model.findtext("pose").split()]
+    assert model_pose[2] == 0.025
+
+    for joint_name in ["left_wheel_joint", "right_wheel_joint"]:
+        axis = robot_xml.find(f".//joint[@name='{joint_name}']/axis/xyz")
+        assert axis is not None
+        assert axis.text.strip() == "0 1 0"
+
+    for link_name in ["left_wheel", "right_wheel"]:
+        link = robot_xml.find(f".//link[@name='{link_name}']")
+        assert link is not None
+        link_pose = [float(value) for value in link.findtext("pose").split()]
+        radius = float(link.findtext(".//collision/geometry/cylinder/radius"))
+
+        assert link_pose[2] == radius
+        assert link_pose[3:6] == [1.5708, 0.0, 0.0]
+
+
 def test_robot_has_core_sensors_and_ros_bridge_topics():
     robot_xml = ET.parse(ROOT / "models" / "ball_picker" / "ball_picker.sdf")
     sensor_names = {

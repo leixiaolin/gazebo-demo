@@ -181,40 +181,18 @@
           </linear_acceleration>
         </imu>
       </sensor>
-    </link>
-
-    <link name="left_wheel">
-      <pose>0 0.285 0.10 0 0 0</pose>
-      <inertial>
-        <mass>0.7</mass>
-        <inertia>
-          <ixx>0.0012</ixx>
-          <iyy>0.0012</iyy>
-          <izz>0.0012</izz>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyz>0</iyz>
-        </inertia>
-      </inertial>
-      <collision name="collision">
-        <pose>0 0 0 1.5708 0 0</pose>
+      <visual name="left_wheel_visual">
+        <pose>0 0.285 0.10 1.5708 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.10</radius>
             <length>0.055</length>
           </cylinder>
         </geometry>
-        <surface>
-          <friction>
-            <ode>
-              <mu>1.0</mu>
-              <mu2>1.0</mu2>
-            </ode>
-          </friction>
-        </surface>
-      </collision>
-      <visual name="visual">
-        <pose>0 0 0 1.5708 0 0</pose>
+        <material><ambient>0.02 0.02 0.02 1</ambient><diffuse>0.03 0.03 0.03 1</diffuse></material>
+      </visual>
+      <visual name="right_wheel_visual">
+        <pose>0 -0.285 0.10 1.5708 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.10</radius>
@@ -225,96 +203,15 @@
       </visual>
     </link>
 
-    <link name="right_wheel">
-      <pose>0 -0.285 0.10 0 0 0</pose>
-      <inertial>
-        <mass>0.7</mass>
-        <inertia>
-          <ixx>0.0012</ixx>
-          <iyy>0.0012</iyy>
-          <izz>0.0012</izz>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyz>0</iyz>
-        </inertia>
-      </inertial>
-      <collision name="collision">
-        <pose>0 0 0 1.5708 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.10</radius>
-            <length>0.055</length>
-          </cylinder>
-        </geometry>
-        <surface>
-          <friction>
-            <ode>
-              <mu>1.0</mu>
-              <mu2>1.0</mu2>
-            </ode>
-          </friction>
-        </surface>
-      </collision>
-      <visual name="visual">
-        <pose>0 0 0 1.5708 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.10</radius>
-            <length>0.055</length>
-          </cylinder>
-        </geometry>
-        <material><ambient>0.02 0.02 0.02 1</ambient><diffuse>0.03 0.03 0.03 1</diffuse></material>
-      </visual>
-    </link>
-
-    <joint name="left_wheel_joint" type="revolute">
-      <parent>base_link</parent>
-      <child>left_wheel</child>
-      <axis>
-        <xyz>0 1 0</xyz>
-        <limit>
-          <lower>-1000000</lower>
-          <upper>1000000</upper>
-          <effort>4.0</effort>
-          <velocity>12.0</velocity>
-        </limit>
-        <dynamics>
-          <damping>0.2</damping>
-          <friction>0.02</friction>
-        </dynamics>
-      </axis>
-    </joint>
-
-    <joint name="right_wheel_joint" type="revolute">
-      <parent>base_link</parent>
-      <child>right_wheel</child>
-      <axis>
-        <xyz>0 1 0</xyz>
-        <limit>
-          <lower>-1000000</lower>
-          <upper>1000000</upper>
-          <effort>4.0</effort>
-          <velocity>12.0</velocity>
-        </limit>
-        <dynamics>
-          <damping>0.2</damping>
-          <friction>0.02</friction>
-        </dynamics>
-      </axis>
-    </joint>
-
-    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
-      <enable>true</enable>
-      <left_joint>left_wheel_joint</left_joint>
-      <right_joint>right_wheel_joint</right_joint>
-      <wheel_separation>0.57</wheel_separation>
-      <wheel_radius>0.10</wheel_radius>
-      <odom_publish_frequency>30</odom_publish_frequency>
+    <plugin filename="gz-sim-velocity-control-system" name="gz::sim::systems::VelocityControl">
       <topic>/ball_picker/cmd_vel</topic>
+    </plugin>
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
       <odom_topic>/ball_picker/odom</odom_topic>
-      <tf_topic>/tf</tf_topic>
-      <frame_id>odom</frame_id>
-      <child_frame_id>base_link</child_frame_id>
+      <odom_frame>odom</odom_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <dimensions>2</dimensions>
+      <odom_publish_frequency>30</odom_publish_frequency>
     </plugin>
   </model>
 </sdf>

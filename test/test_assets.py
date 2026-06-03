@@ -1,12 +1,8 @@
-from pathlib import Path
-import math
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-COURT_SURFACE_Z = 0.025
-
-
 def test_required_simulation_assets_exist():
     required_paths = [
         ROOT / "worlds" / "tennis_court.sdf",
@@ -64,7 +60,8 @@ def test_robot_has_drive_plugin_and_pickup_geometry():
         for collision in robot_xml.findall(".//collision")
     }
 
-    assert "gz-sim-diff-drive-system" in robot_text
+    assert "gz-sim-velocity-control-system" in robot_text
+    assert "gz-sim-odometry-publisher-system" in robot_text
     assert "/ball_picker/cmd_vel" in robot_text
     assert "/ball_picker/odom" in robot_text
     assert "pickup_mouth" in robot_text
@@ -75,46 +72,36 @@ def test_robot_has_drive_plugin_and_pickup_geometry():
     assert "right_pickup_guide_collision" not in collision_names
 
 
-def test_robot_drive_wheels_are_oriented_for_ground_traction():
+def test_robot_uses_single_rigid_body_drive_for_stable_demo_motion():
     robot_xml = ET.parse(ROOT / "models" / "ball_picker" / "ball_picker.sdf")
     model = robot_xml.find(".//model")
     assert model is not None
 
-    model_pose = [float(value) for value in model.findtext("pose").split()]
     assert model.findtext("canonical_link") == "base_link"
     assert model.findtext("self_collide") == "false"
+    assert len(robot_xml.findall(".//link")) == 1
+    assert robot_xml.findall(".//joint") == []
 
-    for joint_name in ["left_wheel_joint", "right_wheel_joint"]:
-        joint = robot_xml.find(f".//joint[@name='{joint_name}']")
-        assert joint is not None
-        axis = joint.find("axis/xyz")
-        assert axis is not None
-        assert axis.text.strip() == "0 1 0"
-        assert joint.findtext("axis/limit/lower") == "-1000000"
-        assert joint.findtext("axis/limit/upper") == "1000000"
-        assert joint.findtext("axis/limit/effort") == "4.0"
-        assert joint.findtext("axis/limit/velocity") == "12.0"
-        assert joint.findtext("axis/dynamics/damping") == "0.2"
-        assert joint.findtext("axis/dynamics/friction") == "0.02"
+    visual_names = {
+        visual.attrib["name"]
+        for visual in robot_xml.findall(".//visual")
+    }
+    assert {"left_wheel_visual", "right_wheel_visual"} <= visual_names
 
-    for link_name in ["left_wheel", "right_wheel"]:
-        link = robot_xml.find(f".//link[@name='{link_name}']")
-        assert link is not None
-        link_pose = [float(value) for value in link.findtext("pose").split()]
-        radius = float(link.findtext(".//collision/geometry/cylinder/radius"))
-        collision_pose = [
-            float(value) for value in link.findtext(".//collision/pose").split()
-        ]
-        visual_pose = [float(value) for value in link.findtext(".//visual/pose").split()]
-        wheel_bottom_z = model_pose[2] + link_pose[2] - radius
+    plugins = {
+        plugin.attrib["name"]: plugin
+        for plugin in robot_xml.findall(".//plugin")
+    }
+    velocity_control = plugins["gz::sim::systems::VelocityControl"]
+    odometry = plugins["gz::sim::systems::OdometryPublisher"]
 
-        assert link_pose[2] == radius
-        assert math.isclose(wheel_bottom_z, COURT_SURFACE_Z)
-        assert link_pose[3:6] == [0.0, 0.0, 0.0]
-        assert collision_pose[3:6] == [1.5708, 0.0, 0.0]
-        assert visual_pose[3:6] == [1.5708, 0.0, 0.0]
-        assert link.findtext(".//collision/surface/friction/ode/mu") == "1.0"
-        assert link.findtext(".//collision/surface/friction/ode/mu2") == "1.0"
+    assert velocity_control.attrib["filename"] == "gz-sim-velocity-control-system"
+    assert velocity_control.findtext("topic") == "/ball_picker/cmd_vel"
+    assert odometry.attrib["filename"] == "gz-sim-odometry-publisher-system"
+    assert odometry.findtext("odom_topic") == "/ball_picker/odom"
+    assert odometry.findtext("odom_frame") == "odom"
+    assert odometry.findtext("robot_base_frame") == "base_link"
+    assert odometry.findtext("dimensions") == "2"
 
 
 def test_robot_has_core_sensors_and_ros_bridge_topics():

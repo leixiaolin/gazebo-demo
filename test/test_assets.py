@@ -1,4 +1,5 @@
 from pathlib import Path
+import math
 import xml.etree.ElementTree as ET
 
 
@@ -81,11 +82,20 @@ def test_robot_drive_wheels_are_oriented_for_ground_traction():
     assert model is not None
 
     model_pose = [float(value) for value in model.findtext("pose").split()]
+    assert model.findtext("canonical_link") == "base_link"
+    assert model.findtext("self_collide") == "false"
 
     for joint_name in ["left_wheel_joint", "right_wheel_joint"]:
-        axis = robot_xml.find(f".//joint[@name='{joint_name}']/axis/xyz")
+        joint = robot_xml.find(f".//joint[@name='{joint_name}']")
+        assert joint is not None
+        axis = joint.find("axis/xyz")
         assert axis is not None
+        assert axis.attrib["expressed_in"] == "__model__"
         assert axis.text.strip() == "0 1 0"
+        assert joint.findtext("axis/limit/effort") == "8.0"
+        assert joint.findtext("axis/limit/velocity") == "25.0"
+        assert joint.findtext("axis/dynamics/damping") == "0.05"
+        assert joint.findtext("axis/dynamics/friction") == "0.01"
 
     for link_name in ["left_wheel", "right_wheel"]:
         link = robot_xml.find(f".//link[@name='{link_name}']")
@@ -99,10 +109,12 @@ def test_robot_drive_wheels_are_oriented_for_ground_traction():
         wheel_bottom_z = model_pose[2] + link_pose[2] - radius
 
         assert link_pose[2] == radius
-        assert wheel_bottom_z <= COURT_SURFACE_Z
+        assert math.isclose(wheel_bottom_z, COURT_SURFACE_Z)
         assert link_pose[3:6] == [0.0, 0.0, 0.0]
         assert collision_pose[3:6] == [1.5708, 0.0, 0.0]
         assert visual_pose[3:6] == [1.5708, 0.0, 0.0]
+        assert link.findtext(".//collision/surface/friction/ode/mu") == "1.0"
+        assert link.findtext(".//collision/surface/friction/ode/mu2") == "1.0"
 
 
 def test_robot_has_core_sensors_and_ros_bridge_topics():

@@ -39,6 +39,8 @@ class NearestBallDriver(Node):
         self._balls = build_scenario(ball_count, seed)["balls"]
         self._reached_radius = self.get_parameter("reached_radius").value
         self._latest_pose = None
+        self._log_counter = 0
+        self._last_target_name = None
 
         self._publisher = self.create_publisher(Twist, "/ball_picker/cmd_vel", 10)
         self.create_subscription(Odometry, "/ball_picker/odom", self._on_odom, 10)
@@ -72,6 +74,20 @@ class NearestBallDriver(Node):
             command = command_toward_ball(self._latest_pose, target)
             twist.linear.x = command.linear_x
             twist.angular.z = command.angular_z
+
+            # 每 1 秒打印一次坐标 (10 * 0.1s)
+            self._log_counter += 1
+            if self._log_counter >= 10:
+                self._log_counter = 0
+                target_name = target.get("name", "unknown")
+                if target_name != self._last_target_name:
+                    self._last_target_name = target_name
+                    self.get_logger().info(
+                        f"Robot pos: ({self._latest_pose.x:.2f}, {self._latest_pose.y:.2f}) "
+                        f"yaw: {math.degrees(self._latest_pose.yaw):.1f}° | "
+                        f"Target: {target_name} at ({target['x']:.2f}, {target['y']:.2f}) | "
+                        f"Cmd: linear={twist.linear.x:.2f}, angular={twist.angular.z:.2f}"
+                    )
 
         self._publisher.publish(twist)
 

@@ -294,6 +294,7 @@
     </joint>
 
     <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+      <enable>true</enable>
       <left_joint>left_wheel_joint</left_joint>
       <right_joint>right_wheel_joint</right_joint>
       <wheel_separation>0.57</wheel_separation>

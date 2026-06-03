@@ -10,7 +10,7 @@ from tennis_ball_picker_sim.scatter import BALL_RADIUS, sample_ball_positions
 ROBOT_SPAWN = {
     "x": 0.0,
     "y": -4.75,
-    "z": 0.08,
+    "z": 0.0,
     "yaw_rad": 1.5708,
 }
 

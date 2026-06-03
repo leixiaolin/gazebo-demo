@@ -92,9 +92,15 @@ def test_robot_drive_wheels_are_oriented_for_ground_traction():
         assert link is not None
         link_pose = [float(value) for value in link.findtext("pose").split()]
         radius = float(link.findtext(".//collision/geometry/cylinder/radius"))
+        collision_pose = [
+            float(value) for value in link.findtext(".//collision/pose").split()
+        ]
+        visual_pose = [float(value) for value in link.findtext(".//visual/pose").split()]
 
         assert link_pose[2] == radius
-        assert link_pose[3:6] == [1.5708, 0.0, 0.0]
+        assert link_pose[3:6] == [0.0, 0.0, 0.0]
+        assert collision_pose[3:6] == [1.5708, 0.0, 0.0]
+        assert visual_pose[3:6] == [1.5708, 0.0, 0.0]
 
 
 def test_robot_has_core_sensors_and_ros_bridge_topics():

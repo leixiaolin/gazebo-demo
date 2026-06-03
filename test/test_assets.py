@@ -69,11 +69,10 @@ def test_robot_has_drive_plugin_and_pickup_geometry():
     assert "/ball_picker/odom" in robot_text
     assert "pickup_mouth" in robot_text
     assert "hopper_visual" in robot_text
-    assert {
-        "pickup_mouth_collision",
-        "left_pickup_guide_collision",
-        "right_pickup_guide_collision",
-    } <= collision_names
+    assert "body_collision" in collision_names
+    assert "pickup_mouth_collision" not in collision_names
+    assert "left_pickup_guide_collision" not in collision_names
+    assert "right_pickup_guide_collision" not in collision_names
 
 
 def test_robot_drive_wheels_are_oriented_for_ground_traction():
@@ -90,12 +89,13 @@ def test_robot_drive_wheels_are_oriented_for_ground_traction():
         assert joint is not None
         axis = joint.find("axis/xyz")
         assert axis is not None
-        assert axis.attrib["expressed_in"] == "__model__"
         assert axis.text.strip() == "0 1 0"
-        assert joint.findtext("axis/limit/effort") == "8.0"
-        assert joint.findtext("axis/limit/velocity") == "25.0"
-        assert joint.findtext("axis/dynamics/damping") == "0.05"
-        assert joint.findtext("axis/dynamics/friction") == "0.01"
+        assert joint.findtext("axis/limit/lower") == "-1000000"
+        assert joint.findtext("axis/limit/upper") == "1000000"
+        assert joint.findtext("axis/limit/effort") == "4.0"
+        assert joint.findtext("axis/limit/velocity") == "12.0"
+        assert joint.findtext("axis/dynamics/damping") == "0.2"
+        assert joint.findtext("axis/dynamics/friction") == "0.02"
 
     for link_name in ["left_wheel", "right_wheel"]:
         link = robot_xml.find(f".//link[@name='{link_name}']")

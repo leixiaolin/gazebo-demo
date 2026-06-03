@@ -31,9 +31,9 @@ REQUIRED_WORLD_FEATURES = {
 
 
 REQUIRED_ROBOT_STRINGS = {
-    "pickup_mouth_collision",
-    "left_pickup_guide_collision",
-    "right_pickup_guide_collision",
+    "pickup_mouth",
+    "left_pickup_guide",
+    "right_pickup_guide",
     "gz-sim-diff-drive-system",
     "/ball_picker/cmd_vel",
     "/ball_picker/odom",

@@ -150,7 +150,7 @@ bash scripts/build_and_smoke_test.sh
 
 ## 遥操作接口
 
-机器人 SDF 包含一个 Gazebo DiffDrive plugin，监听：
+机器人 SDF 现在是最小化的单刚体模型，只保留车身和两个轮子外观。它通过 Gazebo VelocityControl plugin 监听：
 
 ```text
 /ball_picker/cmd_vel
@@ -170,16 +170,11 @@ bash scripts/build_and_smoke_test.sh
 /clock
 /ball_picker/cmd_vel
 /ball_picker/odom
-/ball_picker/front_camera/image
-/ball_picker/front_camera/camera_info
-/ball_picker/scan
-/ball_picker/imu
 ```
 
 运行 `teleop_demo.launch.py` 后，可以从 ROS 2 teleop 或控制器节点向 `/ball_picker/cmd_vel` 发送速度命令。
 
-机器人 SDF 包含前置 RGB 相机、前置 2D LiDAR 和 IMU，因此后续阶段可以在不改变基础仿真入口的前提下，添加类似颜色/深度感知的网球检测、避障和状态估计。
-world 会加载 Gazebo Sensors 和 IMU systems，所以这些传感器 topic 会由相同的 `tennis_court.launch.py` 和 `teleop_demo.launch.py` 入口产生。
+为了保证 MVP 移动链路稳定，简化机器人不再内置 RGB 相机、LiDAR 或 IMU。后续如需恢复感知 topic，需要先明确新的稳定性和接口验收标准。
 
 ## 自主 Demo
 

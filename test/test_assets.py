@@ -59,17 +59,21 @@ def test_robot_has_drive_plugin_and_pickup_geometry():
         collision.attrib["name"]
         for collision in robot_xml.findall(".//collision")
     }
+    visual_names = {
+        visual.attrib["name"]
+        for visual in robot_xml.findall(".//visual")
+    }
 
     assert "gz-sim-velocity-control-system" in robot_text
     assert "gz-sim-odometry-publisher-system" in robot_text
     assert "/ball_picker/cmd_vel" in robot_text
     assert "/ball_picker/odom" in robot_text
-    assert "pickup_mouth" in robot_text
-    assert "hopper_visual" in robot_text
-    assert "body_collision" in collision_names
-    assert "pickup_mouth_collision" not in collision_names
-    assert "left_pickup_guide_collision" not in collision_names
-    assert "right_pickup_guide_collision" not in collision_names
+    assert collision_names == {"body_collision"}
+    assert visual_names == {
+        "body_visual",
+        "left_wheel_visual",
+        "right_wheel_visual",
+    }
 
 
 def test_robot_uses_single_rigid_body_drive_for_stable_demo_motion():
@@ -81,12 +85,6 @@ def test_robot_uses_single_rigid_body_drive_for_stable_demo_motion():
     assert model.findtext("self_collide") == "false"
     assert len(robot_xml.findall(".//link")) == 1
     assert robot_xml.findall(".//joint") == []
-
-    visual_names = {
-        visual.attrib["name"]
-        for visual in robot_xml.findall(".//visual")
-    }
-    assert {"left_wheel_visual", "right_wheel_visual"} <= visual_names
 
     plugins = {
         plugin.attrib["name"]: plugin
@@ -104,24 +102,22 @@ def test_robot_uses_single_rigid_body_drive_for_stable_demo_motion():
     assert odometry.findtext("dimensions") == "2"
 
 
-def test_robot_has_core_sensors_and_ros_bridge_topics():
+def test_bridge_only_maps_topics_produced_by_simplified_robot():
     robot_xml = ET.parse(ROOT / "models" / "ball_picker" / "ball_picker.sdf")
-    sensor_names = {
-        sensor.attrib["name"]
-        for sensor in robot_xml.findall(".//sensor")
-    }
     bridge_text = (ROOT / "launch" / "bridge.launch.py").read_text()
 
-    assert {"front_rgb_camera", "front_lidar", "imu"} <= sensor_names
+    assert robot_xml.findall(".//sensor") == []
 
-    for topic in [
+    for topic in ["/clock", "/ball_picker/cmd_vel", "/ball_picker/odom"]:
+        assert topic in bridge_text
+
+    for removed_topic in [
         "/ball_picker/front_camera/image",
         "/ball_picker/front_camera/camera_info",
         "/ball_picker/scan",
         "/ball_picker/imu",
     ]:
-        assert topic in ET.tostring(robot_xml.getroot(), encoding="unicode")
-        assert topic in bridge_text
+        assert removed_topic not in bridge_text
 
 
 def test_launch_files_support_manifest_output():

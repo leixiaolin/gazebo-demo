@@ -31,17 +31,13 @@ REQUIRED_WORLD_FEATURES = {
 
 
 REQUIRED_ROBOT_STRINGS = {
-    "pickup_mouth",
-    "left_pickup_guide",
-    "right_pickup_guide",
+    "body_visual",
+    "left_wheel_visual",
+    "right_wheel_visual",
     "gz-sim-velocity-control-system",
     "gz-sim-odometry-publisher-system",
     "/ball_picker/cmd_vel",
     "/ball_picker/odom",
-    "/ball_picker/front_camera/image",
-    "/ball_picker/front_camera/camera_info",
-    "/ball_picker/scan",
-    "/ball_picker/imu",
 }
 
 
